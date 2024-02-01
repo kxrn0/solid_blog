@@ -23,6 +23,9 @@ dependencies:
   mongoose:
     specifier: ^8.1.1
     version: 8.1.1
+  tripcode:
+    specifier: ^4.0.0
+    version: 4.0.0
   validator:
     specifier: ^13.11.0
     version: 13.11.0
@@ -705,6 +708,10 @@ packages:
     dependencies:
       brace-expansion: 1.1.11
 
+  /minimist@1.2.8:
+    resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
+    dev: false
+
   /minipass@3.3.6:
     resolution: {integrity: sha512-DxiNidxSEK+tHG6zOIklvNOwm3hvCrbUrdtzY74U6HKTJxvIDfOUL5W5P2Ghd3DTkhhKPYGqeNUIh5qcM4YBfw==}
     engines: {node: '>=8'}
@@ -1088,6 +1095,12 @@ packages:
       memory-pager: 1.5.0
     dev: false
 
+  /split@1.0.1:
+    resolution: {integrity: sha512-mTyOoPbrivtXnwnIxZRFYRrPNtEFKlpB2fvjSnCQUiAA6qAZzqwna5envK4uk6OIeP17CsdF3rSBGYVBsU0Tkg==}
+    dependencies:
+      through: 2.3.8
+    dev: false
+
   /statuses@2.0.1:
     resolution: {integrity: sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==}
     engines: {node: '>= 0.8'}
@@ -1133,6 +1146,10 @@ packages:
       yallist: 4.0.0
     dev: false
 
+  /through@2.3.8:
+    resolution: {integrity: sha512-w89qg7PI8wAdvX60bMDP+bFoD5Dvhm9oLheFp5O4a2QF0cSBGsBX4qZmadPMvVqlLJBBci+WqGGOAPvcDeNSVg==}
+    dev: false
+
   /to-regex-range@5.0.1:
     resolution: {integrity: sha512-65P7iz6X5yEr1cwcgvQxbbIw7Uk3gOy5dIdtZ4rDveLqhrdJP+Li/Hx6tyK0NEb+2GCyneCMJiGqrADCSNk8sQ==}
     engines: {node: '>=8.0'}
@@ -1161,6 +1178,15 @@ packages:
     engines: {node: '>=14'}
     dependencies:
       punycode: 2.3.1
+    dev: false
+
+  /tripcode@4.0.0:
+    resolution: {integrity: sha512-lj1g3/ju2WDd62nQOsT16RmhaIc8z2PLLkuHSJcIUyuJ/TgJ09fkzlkCZWWh8tAVAopvBVG9Aiwv9pOr+4e7+w==}
+    engines: {node: 18 || >=20}
+    hasBin: true
+    dependencies:
+      minimist: 1.2.8
+      split: 1.0.1
     dev: false
 
   /type-is@1.6.18:
