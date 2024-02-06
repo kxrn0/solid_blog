@@ -7,6 +7,7 @@ const CommentSchema = mongoose.Schema(
     number: { type: Number, required: true },
     password: { type: String, required: true },
     post: { type: mongoose.Schema.Types.ObjectId, ref: "Post", required: true },
+    isByOwner: { type: Boolean, required: true },
   },
   { timestamps: true }
 );
