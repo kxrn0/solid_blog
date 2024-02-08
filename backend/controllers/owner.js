@@ -33,3 +33,6 @@ exports.log_in = async (req, res) => {
     return res.status(500).json({ message: "Fuck!" });
   }
 };
+
+exports.check_token = (req, res) =>
+  res.json({ message: "true", newToken: req.newToken });

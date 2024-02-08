@@ -1,35 +1,22 @@
-import { createSignal } from 'solid-js'
-import solidLogo from './assets/solid.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { createSignal } from "solid-js";
+import { JSX } from "solid-js/jsx-runtime";
+import SCApp from "./App.styled";
+import Navbar from "./components/Navbar/Navbar";
+import { DBContextProvider } from "./context/db";
 
-function App() {
-  const [count, setCount] = createSignal(0)
+type Props = {
+  children?: JSX.Element;
+};
 
+function App(props: Props) {
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} class="logo" alt="Vite logo" />
-        </a>
-        <a href="https://solidjs.com" target="_blank">
-          <img src={solidLogo} class="logo solid" alt="Solid logo" />
-        </a>
-      </div>
-      <h1>Vite + Solid</h1>
-      <div class="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count()}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p class="read-the-docs">
-        Click on the Vite and Solid logos to learn more
-      </p>
-    </>
-  )
+    <SCApp>
+      <DBContextProvider>
+        <Navbar></Navbar>
+        {props.children}
+      </DBContextProvider>
+    </SCApp>
+  );
 }
 
-export default App
+export default App;
