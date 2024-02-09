@@ -24,8 +24,9 @@ exports.get_posts = async (req, res) => {
       ).map(async (post) => {
         const commentCount = await Comment.countDocuments({ post: post._id });
         const body = post.body.substring(0, 500);
+        const createdAt = post.createdAt.valueOf();
 
-        return { ...post._doc, commentCount, body };
+        return { ...post._doc, commentCount, body, createdAt };
       })
     );
     const postCount = await Post.countDocuments({ isPublished: isHome });
@@ -113,7 +114,7 @@ exports.post_vote = async (req, res) => {
 
     await post.save();
 
-    res.json({ message: "Fuck!", newToken: req.newToken });
+    res.json({ message: "true", newToken: req.newToken });
   } catch (error) {
     console.log(error);
 

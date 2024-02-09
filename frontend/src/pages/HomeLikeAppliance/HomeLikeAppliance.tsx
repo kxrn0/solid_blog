@@ -1,15 +1,15 @@
 import { useMatch, useSearchParams } from "@solidjs/router";
 import SCHomeLikeAppliance from "./HomeLikeAppliance.styled.tsx";
-import { useDBContext } from "../../context/db.tsx";
 import { For, Index, createEffect, createSignal } from "solid-js";
 import { baseUrl } from "../../data.ts";
 import get_indices from "../../utilities/get_indices.ts";
+import { PostType } from "../../types.ts";
+import HomePost from "../../components/HomePost/HomePost.tsx";
 
 export default function HomeLikeAppliance() {
   const isHome = useMatch(() => "/solid_blog/");
-  const dbStore = useDBContext();
   const [params] = useSearchParams();
-  const [posts, setPosts] = createSignal();
+  const [posts, setPosts] = createSignal<PostType[]>();
   const [indices, setIndices] = createSignal<number[]>([]);
 
   createEffect(async () => {
@@ -34,14 +34,7 @@ export default function HomeLikeAppliance() {
   return (
     <SCHomeLikeAppliance>
       <div class="posts">
-        <For each={posts()}>
-          {(post) => (
-            <div>
-              <p>{post.title}</p>
-              <p>{post.body}</p>
-            </div>
-          )}
-        </For>
+        <For each={posts()}>{(post) => <HomePost post={post} />}</For>
       </div>
       <div class="indices">
         <Index each={indices()}>

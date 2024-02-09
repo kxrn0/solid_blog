@@ -10,16 +10,20 @@ import verify_token from "../utilities/verify_token";
 
 const DBContext = createContext();
 
+type ContextPostType = {
+  id: string;
+};
+
 type DBStoreType = {
   db: Accessor<IDBDatabase>;
   error: Accessor<string>;
   setError: (message: string) => void;
   token: Accessor<string>;
   setToken: (token: string) => void;
-  upvoted: Accessor<string[]>;
-  setUpvoted: (upvoted: string[]) => void;
-  downvoted: Accessor<string[]>;
-  setDownvoted: (downvoted: string[]) => void;
+  upvoted: Accessor<ContextPostType[]>;
+  setUpvoted: (upvoted: ContextPostType[]) => void;
+  downvoted: Accessor<ContextPostType[]>;
+  setDownvoted: (downvoted: ContextPostType[]) => void;
 };
 
 type Props = {
@@ -30,8 +34,8 @@ export function DBContextProvider(props: Props) {
   const [db, setDB] = createSignal<null | IDBDatabase>(null);
   const [error, setError] = createSignal("");
   const [token, setToken] = createSignal("");
-  const [upvoted, setUpvoted] = createSignal<string[]>([]);
-  const [downvoted, setDownvoted] = createSignal<string[]>([]);
+  const [upvoted, setUpvoted] = createSignal<ContextPostType[]>([]);
+  const [downvoted, setDownvoted] = createSignal<ContextPostType[]>([]);
   const store = {
     db,
     error,
@@ -43,6 +47,12 @@ export function DBContextProvider(props: Props) {
     downvoted,
     setDownvoted,
   };
+
+  function set_token(token: string) {
+    const transaction = db()?.transaction("token_store", "readwrite");
+
+    if (!transaction) return;
+  }
 
   onMount(() => {
     const request = indexedDB.open("solid_blog_db", 1);
