@@ -1,5 +1,5 @@
 import SCAuth from "./Auth.styled.tsx";
 
 export default function Auth() {
-  return <SCAuth></SCAuth>
+  return <SCAuth>auth...</SCAuth>;
 }

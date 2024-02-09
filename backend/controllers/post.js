@@ -28,8 +28,10 @@ exports.get_posts = async (req, res) => {
         return { ...post._doc, commentCount, body };
       })
     );
+    const postCount = await Post.countDocuments({ isPublished: isHome });
+    const totalPages = Math.ceil(postCount / itemsPerPage);
 
-    res.json({ posts, newToken: req.newToken });
+    res.json({ posts, totalPages, newToken: req.newToken });
   } catch (error) {
     console.log(error);
 

@@ -2,9 +2,6 @@ const Owner = require("../models/owner");
 const jwt = require("jsonwebtoken");
 
 function check_expiry(exp, id, req, res) {
-  console.log("data:");
-  console.log({ exp, id });
-
   const today = Date.now();
   const week = 7 * 24 * 60 * 60 * 1000;
   const diff = exp - today;

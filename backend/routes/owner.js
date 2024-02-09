@@ -5,6 +5,6 @@ const check_signature = require("../middleware/check_signature");
 
 router.post("/log_in", controller.log_in);
 
-router.post("/log_in/verify", check_signature, controller.check_token);
+router.get("/log_in/verify", check_signature, controller.check_token);
 
 module.exports = router;

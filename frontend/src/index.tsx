@@ -14,17 +14,12 @@ const root = document.getElementById("root");
 render(
   () => (
     <Router root={App}>
-      <Route
-        path="/solid_blog"
-        component={() => <HomeLikeAppliance isHome={true} />}
-      />
-      <Route
-        path="/solid_blog/drafts"
-        component={() => <HomeLikeAppliance isHome={false} />}
-      />
+      <Route path="/solid_blog" component={HomeLikeAppliance} />
+      <Route path="/solid_blog/drafts" component={HomeLikeAppliance} />
       <Route path="/solid_blog/posts/:postId" component={Post} />
       <Route path="/solid_blog/log_in" component={Auth} />
       <Route path="/solid_blog/new" component={NewPost} />
+      <Route path="/solid_blog/*" component={() => <p>404</p>} />
     </Router>
   ),
   root!
