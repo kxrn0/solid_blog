@@ -1,31 +1,38 @@
 import { useDBContext } from "../../context/db.tsx";
 import { baseUrl } from "../../data.ts";
-import { PostType } from "../../types.ts";
+import { PostType, VoteType } from "../../types.ts";
 import SCHomePost from "./HomePost.styled.tsx";
 import { IconArrowUp, IconArrowDown } from "@tabler/icons-solidjs";
 
+type HeaderType = {} | { Authorization: string };
+
 type Props = {
   post: PostType;
+  update_score: (postId: string, type: VoteType, value: number) => void;
 };
 
 export default function HomePost(props: Props) {
   const dbStore = useDBContext();
 
-  async function vote(event: { target: HTMLElement }) {
-    const value = Number(event.target.dataset.value);
-    let upvote, downvote;
+  async function handle_vote(
+    event: MouseEvent & {
+      currentTarget: HTMLButtonElement;
+      target: Element;
+    }
+  ) {
+    const headers = { Authorization: "", "Content-Type": "application/json" };
+    const value = Number((event.target as HTMLElement).dataset.value);
+    let upvote, downvote, hasUpvoted, hasDownvoted;
 
     if (value === 1) {
-      const hasUpvoted = dbStore
-        .upvoted()
-        .some((post) => post.id === props.post._id);
+      hasUpvoted = dbStore.upvoted().some((post) => post.id === props.post._id);
 
       if (hasUpvoted) upvote = -1;
       else upvote = 1;
 
       downvote = 0;
     } else {
-      const hasDownvoted = dbStore
+      hasDownvoted = dbStore
         .downvoted()
         .some((post) => post.id === props.post._id);
 
@@ -35,18 +42,27 @@ export default function HomePost(props: Props) {
       upvote = 0;
     }
 
+    if (dbStore.token()) headers.Authorization = `Bearer ${dbStore.token()}`;
+
     try {
       const response = await fetch(`${baseUrl}/api/posts/${props.post._id}`, {
         method: "POST",
         body: JSON.stringify({ upvote, downvote }),
+        headers,
       });
       const json = await response.json();
 
-      if (json.newToken) dbStore.setToken(json.newToken);
-      
-      
+      if (json.token) dbStore.set_token(json.newToken);
+
+      const isInStore = !!(hasUpvoted || hasDownvoted);
+      const type = upvote ? "upvote" : "downvote";
+
+      dbStore.vote(props.post._id, isInStore, type);
+      props.update_score(props.post._id, type, value);
     } catch (error) {
       console.log(error);
+
+      dbStore.setError("Fuck!");
     }
   }
 
@@ -63,7 +79,7 @@ export default function HomePost(props: Props) {
                 .upvoted()
                 .some((post) => post.id === props.post._id),
             }}
-            onclick={vote}
+            onClick={handle_vote}
           >
             <IconArrowUp />
             <p>{props.post.upvotes}</p>
@@ -71,7 +87,7 @@ export default function HomePost(props: Props) {
           <div class="separator"></div>
           <button
             data-value="-1"
-            onClick={vote}
+            onClick={handle_vote}
             classList={{
               downvote: true,
               active: dbStore

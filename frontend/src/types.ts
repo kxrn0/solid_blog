@@ -7,3 +7,5 @@ export type PostType = {
   commentCount: number;
   createdAt: number;
 };
+
+export type VoteType = "upvote" | "downvote";

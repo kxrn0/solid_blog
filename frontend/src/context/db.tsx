@@ -7,6 +7,7 @@ import {
 } from "solid-js";
 import { JSX } from "solid-js/jsx-runtime";
 import verify_token from "../utilities/verify_token";
+import { VoteType } from "../types";
 
 const DBContext = createContext();
 
@@ -19,7 +20,8 @@ type DBStoreType = {
   error: Accessor<string>;
   setError: (message: string) => void;
   token: Accessor<string>;
-  setToken: (token: string) => void;
+  set_token: (token: string) => void;
+  vote: (postId: string, isInStore: boolean, type: VoteType) => void;
   upvoted: Accessor<ContextPostType[]>;
   setUpvoted: (upvoted: ContextPostType[]) => void;
   downvoted: Accessor<ContextPostType[]>;
@@ -36,31 +38,70 @@ export function DBContextProvider(props: Props) {
   const [token, setToken] = createSignal("");
   const [upvoted, setUpvoted] = createSignal<ContextPostType[]>([]);
   const [downvoted, setDownvoted] = createSignal<ContextPostType[]>([]);
+
+  function set_token(token: string) {
+    const transaction = db()?.transaction("token_store", "readwrite");
+
+    if (!transaction) return;
+
+    const store = transaction.objectStore("token_store");
+    const document = { token, id: "token_key" };
+    const request = store.put(document);
+
+    request.addEventListener("success", () => {
+      setToken(token);
+    });
+
+    request.addEventListener("error", () => setError("Error setting token!"));
+  }
+
+  function vote(postId: string, isInStore: boolean, type: VoteType) {
+    const storeName = `${type}_store`;
+    const transaction = db()?.transaction(storeName, "readwrite");
+
+    if (!transaction) return;
+
+    const store = transaction.objectStore(storeName);
+    const update = type === "upvote" ? setUpvoted : setDownvoted;
+
+    if (isInStore) {
+      const deleteRequest = store.delete(postId);
+
+      deleteRequest.addEventListener("success", () =>
+        update((prev) => prev.filter((post) => post.id !== postId))
+      );
+
+      deleteRequest.addEventListener("error", () => setError("Fuck!"));
+    } else {
+      const post = { id: postId };
+      const addRequest = store.add(post);
+
+      addRequest.addEventListener("success", () =>
+        update((prev) => [...prev, post])
+      );
+
+      addRequest.addEventListener("error", () => setError("Fuck!"));
+    }
+  }
+
   const store = {
     db,
     error,
     setError,
     token,
-    setToken,
+    set_token,
+    vote,
     upvoted,
     setUpvoted,
     downvoted,
     setDownvoted,
   };
 
-  function set_token(token: string) {
-    const transaction = db()?.transaction("token_store", "readwrite");
-
-    if (!transaction) return;
-  }
-
   onMount(() => {
     const request = indexedDB.open("solid_blog_db", 1);
 
     request.addEventListener("success", () => {
       const db = request.result;
-
-      setDB(db);
 
       const transaction = db.transaction(
         ["token_store", "upvote_store", "downvote_store"],
@@ -90,6 +131,8 @@ export function DBContextProvider(props: Props) {
       transaction.addEventListener("error", () =>
         setError("Transaction failed!")
       );
+
+      setDB(db);
     });
 
     request.addEventListener("error", () =>

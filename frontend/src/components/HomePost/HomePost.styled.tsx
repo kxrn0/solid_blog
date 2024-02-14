@@ -15,6 +15,11 @@ const SCHomePost = styled("div")`
             background-color: pink;
           }
         }
+
+        p,
+        svg {
+          pointer-events: none;
+        }
       }
     }
   }

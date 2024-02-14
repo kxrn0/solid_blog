@@ -103,11 +103,11 @@ exports.delete_post = async (req, res) => {
 
 exports.post_vote = async (req, res) => {
   const postId = req.params.postId;
-  const upvote = req.body.upvote || 0;
-  const downvote = req.body.downvote || 0;
+  const upvote = req.body.upvote;
+  const downvote = req.body.downvote;
 
   try {
-    const post = await Post.findById(postId);
+    const post = await Post.findById(postId, { body: 0 });
 
     post.upvotes += upvote;
     post.downvotes += downvote;

@@ -21,7 +21,7 @@ export default function Navbar() {
 
     console.log("logging out!");
 
-    dbStore.setToken("");
+    dbStore.set_token("");
     dbStore.setError("");
 
     navigate("/solid_blog/?isHome=true&page=1&byme=sxarp");
