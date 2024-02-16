@@ -21,7 +21,12 @@ type DBStoreType = {
   setError: (message: string) => void;
   token: Accessor<string>;
   set_token: (token: string) => void;
-  vote: (postId: string, isInStore: boolean, type: VoteType) => void;
+  vote: (
+    postId: string,
+    type: VoteType,
+    isInUpvotes: boolean,
+    isInDownvotes: boolean
+  ) => void;
   upvoted: Accessor<ContextPostType[]>;
   setUpvoted: (upvoted: ContextPostType[]) => void;
   downvoted: Accessor<ContextPostType[]>;
@@ -55,32 +60,77 @@ export function DBContextProvider(props: Props) {
     request.addEventListener("error", () => setError("Error setting token!"));
   }
 
-  function vote(postId: string, isInStore: boolean, type: VoteType) {
-    const storeName = `${type}_store`;
-    const transaction = db()?.transaction(storeName, "readwrite");
+  function vote(
+    postId: string,
+    type: VoteType,
+    isInUpvotes: boolean,
+    isInDownvotes: boolean
+  ) {
+    if (isInUpvotes || isInDownvotes) {
+      const isOfSameType =
+        (isInUpvotes && type === "upvote") ||
+        (isInDownvotes && type === "downvote");
 
-    if (!transaction) return;
+      if (isOfSameType) {
+        const storeName = `${type}_store`;
+        const transaction = db()?.transaction(storeName, "readwrite");
 
-    const store = transaction.objectStore(storeName);
-    const update = type === "upvote" ? setUpvoted : setDownvoted;
+        if (!transaction) return;
 
-    if (isInStore) {
-      const deleteRequest = store.delete(postId);
+        const store = transaction.objectStore(storeName);
+        const request = store.delete(postId);
+        const update = type === "upvote" ? setUpvoted : setDownvoted;
 
-      deleteRequest.addEventListener("success", () =>
-        update((prev) => prev.filter((post) => post.id !== postId))
-      );
+        request.addEventListener("success", () =>
+          update((prev) => prev.filter((post) => post.id !== postId))
+        );
 
-      deleteRequest.addEventListener("error", () => setError("Fuck!"));
+        request.addEventListener("error", () => setError("Fuck!"));
+      } else {
+        const addStoreName = `${type}_store`;
+        const removeStoreName = `${
+          type === "upvote" ? "downvote" : "upvote"
+        }_store`;
+
+        const transaction = db()?.transaction(
+          [addStoreName, removeStoreName],
+          "readwrite"
+        );
+
+        if (!transaction) return;
+
+        const addStore = transaction.objectStore(addStoreName);
+        const removeStore = transaction.objectStore(removeStoreName);
+        const post = { id: postId };
+        const addUpdate = type === "upvote" ? setUpvoted : setDownvoted;
+        const removeUpdate = type === "upvote" ? setDownvoted : setUpvoted;
+
+        addStore.add(post);
+        removeStore.delete(postId);
+
+        transaction.addEventListener("complete", () => {
+          addUpdate((prev) => [...prev, post]);
+          removeUpdate((prev) => prev.filter((post) => post.id !== postId));
+        });
+
+        transaction.addEventListener("error", () => setError("Fuck!"));
+      }
     } else {
-      const post = { id: postId };
-      const addRequest = store.add(post);
+      const storeName = `${type}_store`;
+      const transaction = db()?.transaction(storeName, "readwrite");
 
-      addRequest.addEventListener("success", () =>
+      if (!transaction) return;
+
+      const store = transaction.objectStore(storeName);
+      const post = { id: postId };
+      const request = store.add(post);
+      const update = type === "upvote" ? setUpvoted : setDownvoted;
+
+      request.addEventListener("success", () =>
         update((prev) => [...prev, post])
       );
 
-      addRequest.addEventListener("error", () => setError("Fuck!"));
+      request.addEventListener("error", () => setError("Fuck!"));
     }
   }
 
@@ -120,13 +170,10 @@ export function DBContextProvider(props: Props) {
         if (value) verify_token(token(), setToken, setError);
       });
 
-      upvoteRequest.addEventListener("success", () =>
-        setUpvoted(upvoteRequest.result)
-      );
-
-      downvoteRequest.addEventListener("success", () =>
-        setDownvoted(downvoteRequest.result)
-      );
+      transaction.addEventListener("complete", () => {
+        setUpvoted(upvoteRequest.result);
+        setDownvoted(downvoteRequest.result);
+      });
 
       transaction.addEventListener("error", () =>
         setError("Transaction failed!")

@@ -107,7 +107,7 @@ exports.post_vote = async (req, res) => {
   const downvote = req.body.downvote;
 
   try {
-    const post = await Post.findById(postId, { body: 0 });
+    const post = await Post.findById(postId);
 
     post.upvotes += upvote;
     post.downvotes += downvote;

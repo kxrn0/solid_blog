@@ -3,10 +3,9 @@ import SCHomeLikeAppliance from "./HomeLikeAppliance.styled.tsx";
 import { For, Index, createEffect, createSignal } from "solid-js";
 import { baseUrl } from "../../data.ts";
 import get_indices from "../../utilities/get_indices.ts";
-import { PostType } from "../../types.ts";
+import { PostType, VoteType } from "../../types.ts";
 import HomePost from "../../components/HomePost/HomePost.tsx";
 import { useDBContext } from "../../context/db.tsx";
-import { VoteType } from "../../types.ts";
 
 export default function HomeLikeAppliance() {
   const isHome = useMatch(() => "/solid_blog/");
@@ -15,20 +14,36 @@ export default function HomeLikeAppliance() {
   const [indices, setIndices] = createSignal<number[]>([]);
   const dbStore = useDBContext();
 
-  function update_score(postId: string, type: VoteType, value: number) {
-    const post = posts().find((post) => post._id === postId);
+  function u(
+    postId: string,
+    type: VoteType,
+    isInUpvotes: boolean,
+    isinDownvotes: boolean
+  ) {
+    if (isInUpvotes || isinDownvotes) {
+      const isOfSameType =
+        (isInUpvotes && type === "upvote") ||
+        (isinDownvotes && type === "downvote");
 
-    if (!post) return;
+      if (isOfSameType) {
+      } else {
+      }
+    } else {
+      setPosts((posts) =>
+        posts.map((post) =>
+          post._id === postId
+            ? (() => {
+                const updated = { [`${type}s`]: Number(post[`${type}s`]) + 1 };
 
-    const newPost = { ...post };
-
-    if (type === "upvote") newPost.upvotes += value;
-    else newPost.downvotes += value;
-
-    setPosts((prev) =>
-      prev.map((post) => (post._id === postId ? newPost : post))
-    );
+                return { ...post, ...updated };
+              })()
+            : post
+        )
+      );
+    }
   }
+
+  function update_score(postId: string, upvote: number, downvote: number) {}
 
   createEffect(async () => {
     try {
@@ -48,13 +63,6 @@ export default function HomeLikeAppliance() {
 
   return (
     <SCHomeLikeAppliance>
-      <button
-        onclick={() =>
-          console.log({ up: dbStore.upvoted(), down: dbStore.downvoted() })
-        }
-      >
-        stuff
-      </button>
       <div class="posts">
         <For each={posts()}>
           {(post) => <HomePost post={post} update_score={update_score} />}

@@ -3,6 +3,8 @@ export default function get_indices(
   pagesPerSection: number,
   currentPage: number
 ) {
+  if (!totalPages) return [];
+
   const pages = [];
 
   if (totalPages <= pagesPerSection || currentPage < pagesPerSection) {
