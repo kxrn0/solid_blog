@@ -28,21 +28,28 @@ export default function Post() {
     hasUpvoted: boolean,
     hasDownvoted: boolean
   ) {
+    function update_post(
+      post: PostType,
+      type: VoteType,
+      fun: (a: number, b: number) => number
+    ) {
+      const value = Number(post[`${type}s`]);
+      const updated = { [`${type}s`]: fun(value, 1) };
+
+      return { ...post, ...updated };
+    }
+
     if (hasUpvoted || hasDownvoted) {
       const isOfSameType =
         (type === "upvote" && hasUpvoted) ||
         (type === "downvote" && hasDownvoted);
 
-      if (isOfSameType) {
-        const updated = {
-          [`${type}s`]: Number(postData()?.post[`${type}s`]) - 1,
-        };
-
+      if (isOfSameType)
         setPostData((prev) => ({
           ...prev!,
-          post: { ...prev!.post, ...updated },
+          post: update_post(prev!.post, type, (a, b) => a - b),
         }));
-      } else {
+      else {
         const add: keyof PostType = `${type}s`;
         const remove: keyof PostType = `${
           type === "upvote" ? "downvote" : "upvote"
@@ -60,10 +67,7 @@ export default function Post() {
     } else
       setPostData((prev) => ({
         ...prev!,
-        post: {
-          ...prev!.post,
-          [`${type}s`]: Number(prev!.post[`${type}s`]) + 1,
-        },
+        post: update_post(prev!.post, type, (a, b) => a + b),
       }));
   }
 
