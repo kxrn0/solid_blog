@@ -5,45 +5,71 @@ import { baseUrl } from "../../data.ts";
 import get_indices from "../../utilities/get_indices.ts";
 import { PostType, VoteType } from "../../types.ts";
 import HomePost from "../../components/HomePost/HomePost.tsx";
-import { useDBContext } from "../../context/db.tsx";
 
 export default function HomeLikeAppliance() {
   const isHome = useMatch(() => "/solid_blog/");
   const [params] = useSearchParams();
   const [posts, setPosts] = createSignal<PostType[]>([]);
   const [indices, setIndices] = createSignal<number[]>([]);
-  const dbStore = useDBContext();
 
-  function u(
+  function update_score(
     postId: string,
     type: VoteType,
     isInUpvotes: boolean,
-    isinDownvotes: boolean
+    isInDownvotes: boolean
   ) {
-    if (isInUpvotes || isinDownvotes) {
+    function update_post(
+      post: PostType,
+      type: VoteType,
+      fun: (a: number, b: number) => number
+    ) {
+      const value = Number(post[`${type}s`]);
+      const updated = { [`${type}s`]: fun(value, 1) };
+
+      return { ...post, ...updated };
+    }
+
+    if (isInUpvotes || isInDownvotes) {
       const isOfSameType =
         (isInUpvotes && type === "upvote") ||
-        (isinDownvotes && type === "downvote");
+        (isInDownvotes && type === "downvote");
 
       if (isOfSameType) {
+        setPosts((posts) =>
+          posts.map((post) =>
+            post._id === postId
+              ? update_post(post, type, (a, b) => a - b)
+              : post
+          )
+        );
       } else {
+        setPosts((posts) =>
+          posts.map((post) =>
+            post._id === postId
+              ? (() => {
+                  const add: keyof PostType = `${type}s`;
+                  const remove: keyof PostType = `${
+                    type === "upvote" ? "downvote" : "upvote"
+                  }s`;
+                  const update = {
+                    [add]: Number(post[add]) + 1,
+                    [remove]: Number(post[remove]) - 1,
+                  };
+
+                  return { ...post, ...update };
+                })()
+              : post
+          )
+        );
       }
     } else {
       setPosts((posts) =>
         posts.map((post) =>
-          post._id === postId
-            ? (() => {
-                const updated = { [`${type}s`]: Number(post[`${type}s`]) + 1 };
-
-                return { ...post, ...updated };
-              })()
-            : post
+          post._id === postId ? update_post(post, type, (a, b) => a + b) : post
         )
       );
     }
   }
-
-  function update_score(postId: string, upvote: number, downvote: number) {}
 
   createEffect(async () => {
     try {

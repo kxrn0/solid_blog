@@ -34,7 +34,7 @@ export default function Navbar() {
       </div>
       <div class="container">
         <Show when={!isHome()}>
-          <a href="/solid_blog?isHome=true&page=1">Home</a>
+          <a href="/solid_blog/?isHome=true&page=1">Home</a>
         </Show>
         <Show
           when={dbStore.token()}

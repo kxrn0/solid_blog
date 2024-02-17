@@ -4,19 +4,15 @@ const SCHomePost = styled("div")`
   .head {
     .score {
       button {
-        &.upvote {
-          &.active {
-            background-color: greenyellow;
-          }
+        &.upvote.active {
+          background-color: greenyellow;
         }
 
-        &.downvote {
-          &.active {
-            background-color: pink;
-          }
+        &.downvote.active {
+          background-color: pink;
         }
 
-        p,
+        span,
         svg {
           pointer-events: none;
         }
