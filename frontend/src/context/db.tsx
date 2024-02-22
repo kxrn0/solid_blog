@@ -165,9 +165,9 @@ export function DBContextProvider(props: Props) {
       const downvoteRequest = downvoteStore.getAll();
 
       tokenRequest.addEventListener("success", () => {
-        const value = tokenRequest.result?.value;
+        const value = tokenRequest.result.token;
 
-        if (value) verify_token(token(), setToken, setError);
+        if (value) verify_token(value, setToken, setError);
       });
 
       transaction.addEventListener("complete", () => {

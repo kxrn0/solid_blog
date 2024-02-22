@@ -7,10 +7,13 @@ export default async function verify_token(
 ) {
   try {
     const response = await fetch(`${baseUrl}/api/auth/log_in/verify`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
     const json = await response.json();
+    
+    console.log({json})
 
     switch (response.status) {
       case 200:

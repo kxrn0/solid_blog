@@ -41,6 +41,7 @@ export default function HomePost(props: Props) {
 
   return (
     <SCHomePost>
+      <button onclick={() => console.log(`~${dbStore.token()}~`)}>token</button>
       <div class="head">
         <a href={`/solid_blog/posts/${props.post._id}`}>{props.post.title}</a>
         <div class="score">

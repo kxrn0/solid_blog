@@ -10,6 +10,9 @@ module.exports = async function create_owner() {
   const password = process.env.PASSWORD || "password";
   const salt = await bcrypt.genSalt(10);
   const hash = await bcrypt.hash(password, salt);
+
+  console.log({ name, password, hash });
+
   const owner = new Owner({ name, password: hash });
 
   await owner.save();

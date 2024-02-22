@@ -31,7 +31,7 @@ module.exports = function check_signature(req, res, next) {
   jwt.verify(token, process.env.SECRET, async (error, payload) => {
     if (error) return res.status(500).json({ message: "Fuck!" });
 
-    const owner = await Owner.findById(payload.id);
+    const owner = await Owner.findById(payload.ownerId);
 
     if (!owner) return res.status(401).json({ message: "Fuck!" });
 

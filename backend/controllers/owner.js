@@ -8,14 +8,16 @@ exports.log_in = async (req, res) => {
 
   if (!name || !password) return res.status(400).json({ message: "Fuck!" });
 
+  console.log({ name, password });
+
   try {
     const owner = await Owner.findOne({ name });
 
-    if (!owner) return res.status(400).json({ message: "Fuck!" });
+    if (!owner) return res.status(400).json({ message: "wrong name!" });
 
-    const matches = await bcrypt.compare(owner.password, password);
+    const matches = await bcrypt.compare(password, owner.password);
 
-    if (!matches) return res.status(400).json({ messsage: "Fuck!" });
+    if (!matches) return res.status(400).json({ message: "wrong password!" });
 
     jwt.sign(
       { ownerId: owner._id },
